@@ -1,5 +1,3 @@
-# VERSION 6/30/21, 9:50 AM
-
 numPlayers = 2
 numOfEachCard = 3
 players = {}
@@ -8,7 +6,7 @@ flippedCards = []
 import random
 # Deck class: initalizes all the cards for the game
 # The deck of cards are shuffled and two are dealt to each player
-# The remaining cards are left in the deck, they can be drawn from later as needed (ambassador or switch card)
+# The remaining cards are left in the deck, they can be drawn from later as needed
 class Deck:
     def __init__(self):
         self.numCards = numOfEachCard * 5
@@ -27,16 +25,16 @@ class Deck:
     def shuffle(self):
         random.shuffle(self.cards)
 
-    # functions which return info on the deck
+    def drawCardFromDeck(self):
+        return self.cards.pop(0)
+
+    # functions below return info on the deck
     def getCardsInDeck(self):
         return self.cards
 
     def printCardsInDeck(self):
         for card in self.cards:
             print(card.name)
-
-    def drawCardFromDeck(self):
-        return self.cards.pop(0)
 
 # Card class: the only property each card needs is a name
 # The player has the ability to use any move regardless of their card
@@ -69,6 +67,7 @@ class Player:
         print()
 
     def coup(self, victim):
+        print("~Coup~")
         self.numCoins -= 7
         victimPlayer = getPlayerByNum(victim)
         victimPlayer.flipCard()
@@ -76,9 +75,18 @@ class Player:
 
     # moves that can be challenged / blocked
     def tax(self):
-        self.numCoins += 3
+        print("~Tax~")
+        challenger = int(input("Player " + str(self.playerNumber) + " has claimed duke, if you wish to challenge enter your player number, else enter '0': "))
+        if challenger == 0:
+            self.numCoins += 3
+        else:
+            challengerPlayer = getPlayerByNum(challenger)
+            if self.confirmCards(challenger, "duke") == False:
+                self.numCoins += 3
+
 
     def steal(self, victimNumber):
+        print("~Steal~")
         victim = getPlayerByNum(victimNumber)
         victimChoice = int(input("Player " + str(victimNumber) + " enter '0' to allow theft, enter '1' to claim captain, enter '2' to claim ambassador, or enter '3' to claim player is not a captain: "))
         if victimChoice == 0:
@@ -127,6 +135,7 @@ class Player:
         
 
     def exchange(self):
+        print("~Exchange~")
         challenger = int(input("Player " + str(self.playerNumber) + " is claiming ambassador, if you wish to challenge enter your player number, else enter '0': "))
         if challenger != 0:
             if self.confirmCards(challenger, "ambassador") == True:
@@ -213,6 +222,7 @@ class Player:
         print()
 
     def assassinate(self, victim):
+        print("~Assassinate~")
         self.numCoins -= 3
         victimPlayer = getPlayerByNum(victim)
         victimChoice = int(input("Player " + str(victim) + ", you are being assassinated by Player " + str(self.playerNumber) + "; enter '0' to accept assassination, enter '1' to challenge assassin, or enter '2' to claim contessa: "))
@@ -232,6 +242,7 @@ class Player:
                     self.flipCard()
 
     def foreignAid(self):
+        print("~Foreign Aid~")
         challenger = int(input("Player " + str(self.playerNumber) + " is attempting to take foreign aid; if you wish to claim duke enter your player number, else enter '0': "))
         if challenger == 0:
             self.numCoins += 2
@@ -244,21 +255,7 @@ class Player:
                 if challengerPlayer.confirmCards(self.playerNumber, "duke") == True:
                     self.numCoins += 2
 
-
-
-    # response moves (blocking / challenging a previous players move)
-    # def blockAssassin(self):
-    #     print("blockAssassin")
-
-    # def blockTheft(self):
-    #     print("blockTheft")
-
-    # def blockForeignAid(self):
-    #     print("blockForeignAid")
-
-    # def challenge(self):
-    #     print("challenge")
-
+    # function that is called when a player loses a card
     def flipCard(self):
         print()
         victimNumber = self.getPlayerNum()
@@ -303,20 +300,18 @@ class Player:
             print("Challenge unsuccessful, Player " + str(self.playerNumber) + " had a " + str(self.card1.name))
             challengerPlayer = getPlayerByNum(challenger)
             challengerPlayer.flipCard()
-            print("Card before: " + str(self.card1.name))
             self.returnCardToDeck(self.card1)
             self.card1 = deck.drawCardFromDeck()
-            print("Card after: " + str(self.card1.name))
+            print("Player " + str(self.playerNumber) + " has been dealt a new card")
             print()
             return False
         elif card == self.card2.name:
             print("Challenge unsuccessful, Player " + str(self.playerNumber) + " had a " + str(self.card2.name))
             challengerPlayer = getPlayerByNum(challenger)
             challengerPlayer.flipCard()
-            print("Card before: " + str(self.card2.name))
             self.returnCardToDeck(self.card2)
             self.card2 = deck.drawCardFromDeck()
-            print("Card after: " + str(self.card2.name))
+            print("Player " + str(self.playerNumber) + " has been dealt a new card")
             print()
             return False
         else:
@@ -325,8 +320,7 @@ class Player:
             return True
 
         
-       
-    # functions which return info on a player
+    # functions below return info on player(s)
     def getAllInfo(self):
         return self.playerNumber, self.numCoins, self.card1, self.card2
 
@@ -363,7 +357,6 @@ def printAllPlayerInfo():
         # playerNumber, numCoins, card1, card2 = player.getAllInfo()
         print("Player number: " + str(playerNumber) + ", Number of coins: " + str(numCoins) + ", Card 1: " + card1.name + ", Card 2: " + card2.name)
 
-
 # initialize deck
 # initialize players, take cards from deck and give them to player
 # then start the game play
@@ -398,7 +391,7 @@ def playGame():
     print("Winner is: " + str(players[lastPlayerStanding[0]].playerNumber))
 
 def makeMove(player):
-    print("Enter 0 for move list, or enter 1-7 for your move, enter 9 for game update")
+    print("Enter 0 for move list, enter 1-7 for your move, or enter 9 for game update")
     print("Player " + str(player.playerNumber) + " coins: " + str(player.numCoins))
     move = int(input("Player " + str(player.playerNumber) + ", your move: "))
     # PRINT MOVE LIST
@@ -410,7 +403,6 @@ def makeMove(player):
         player.income()
     # COUP
     elif(move == 2):
-        print("~COUP~")
         if player.numCoins < 7:
             print("Not enough coins to coup, pick another move.")
             return False
@@ -425,19 +417,12 @@ def makeMove(player):
                 break
     # TAX
     elif (move == 3):
-        print("~TAX~")
         player.tax()
-        challenger = int(input("Player " + str(player.playerNumber) + " is claiming duke; if you wish to challenge enter your player number, else enter '0': "))
-        if challenger in players:
-            if player.confirmCards(challenger, "duke") == True:
-                player.numCoins -= 3
-
         print("Player " + str(player.playerNumber) + " coins: " + str(player.getNumCoins()))
         print()
 
     # STEAL
     elif(move == 4):
-        print("~STEAL~")
         victimNumber = int(input("Enter the player you wish to steal from: "))
         player.steal(victimNumber)
         victim = getPlayerByNum(victimNumber)
@@ -447,31 +432,30 @@ def makeMove(player):
 
     # EXCHANGE
     elif(move == 5):
-        print("~EXCHANGE~")
         player.exchange()
+
     # ASSASSINATE
     elif(move == 6):
         if player.numCoins < 3:
             print("Not enough coins to assassinate")
             return False
-        print("~ASSASSINATE~")
         victim = int(input("Player " + str(player.playerNumber) + ", select the person you want to assassinate: "))
         player.assassinate(victim)
     # FOREIGN AID
     elif(move == 7):
-        print("~FOREIGN AID~")
         player.foreignAid()
     # GAME UPDATE
     elif(move == 9):
         # print flipped cards, players left, num cards and coins
         print()
+        print("~~~GAME UPDATE~~~")
         print("Flipped cards: ")
         for card in flippedCards:
             print(card.name)
         print()
         keys = list(players.keys())
         for key in keys:
-            print("Player " + str(players[key].playerNumber) + ": coins:" + str(players[key].numCoins) + " cards: " + str(str(players[key].numCards)))
+            print("Player " + str(players[key].playerNumber) + ": coins: " + str(players[key].numCoins) + " cards: " + str(str(players[key].numCards)))
         print()
         return False
     else:
@@ -500,7 +484,6 @@ def printMoveList():
         print(str(i) + ": " + moves[i - 1])
 
 
-
 # Given the previous player to go and the players left in the game, find the next player to play
 # If the prev player is the last player in the list, the next player to play is the first player left
 # Otherwise, the next player to play is the next player in the list who is greater than the previous player
@@ -516,15 +499,11 @@ def getNextPlayer(prevPlayer, playersLeft):
 def getPlayerByNum(playerNum):
     return players.get(playerNum)
 
-def getNumberOfPlayers():
-    return len(players)
-
 def victory():
     if len(players) == 1:
         return True
     else:
         return False
-
 
 def main():
     setUpGame()
