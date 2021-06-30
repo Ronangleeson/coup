@@ -1,3 +1,5 @@
+# VERSION 6/30/21, 9:50 AM
+
 numPlayers = 2
 numOfEachCard = 3
 players = {}
@@ -87,51 +89,175 @@ class Player:
             else:
                 self.numCoins += 2
                 victim.numCoins -= 2
-            return
         elif victimChoice == 1:
             originalPlayerChoice = int(input("Player " + str(victimNumber) + " claims to be a captain, Player " + str(self.playerNumber) + " enter '0' to accept this claim, or enter '1' to challenge: "))
             if originalPlayerChoice == 0:
                 return
             elif originalPlayerChoice == 1:
-                victim.confirmCards(self.playerNumber, "captain")
+                if victim.confirmCards(self.playerNumber, "captain") == True:
+                    print("Theft successful")
+                    if victim.numCoins < 2:
+                        self.numCoins += victim.numCoins
+                        victim.numCoins = 0
+                    else:
+                        self.numCoins += 2
+                        victim.numCoins -= 2
         elif victimChoice == 2:
             originalPlayerChoice = int(input("Player " + str(victimNumber) + " claims to be a ambassador, Player " + str(self.playerNumber) + " enter '0' to accept this claim, or enter '1' to challenge: "))
             if originalPlayerChoice == 0:
                 return
             elif originalPlayerChoice == 1:
-                victim.confirmCards(self.playerNumber, "ambassador")    
+                if victim.confirmCards(self.playerNumber, "ambassador") == True:
+                    print("Theft successful")
+                    if victim.numCoins < 2:
+                        self.numCoins += victim.numCoins
+                        victim.numCoins = 0
+                    else:
+                        self.numCoins += 2
+                        victim.numCoins -= 2
         elif victimChoice == 3:
             if self.confirmCards(victimNumber, "captain") == False:
+                print("Theft successful")
                 if victim.numCoins < 2:
                     self.numCoins += victim.numCoins
                     victim.numCoins = 0
                 else:
                     self.numCoins += 2
                     victim.numCoins -= 2
-
         
 
     def exchange(self):
-        print("exchange")
+        challenger = int(input("Player " + str(self.playerNumber) + " is claiming ambassador, if you wish to challenge enter your player number, else enter '0': "))
+        if challenger != 0:
+            if self.confirmCards(challenger, "ambassador") == True:
+                print("Exchange unsuccessful")
+                print()
+                return
+        else:
+            # if player has flipped a card, they can only take 1 card from exchange
+            # CARD 1 IS FLIPPED
+            if self.card1.name == "Flipped":
+                tempCards = {}
+                tempCards[1] = self.card2
+                tempCards[2] = deck.drawCardFromDeck()
+                tempCards[3] = deck.drawCardFromDeck()
+                showCards = input("Player " + str(self.playerNumber) + ", enter any key when ready to see cards: ")
+                keys = list(tempCards.keys())
+                print()
+                for key in keys:
+                    print("Card " + str(key) + ": " + str(tempCards[key].name))
+                print()
+                # after seeing all cards, let player select which two to keep
+                cardOneNumber = int(input("Player " + str(self.playerNumber) + ", enter the card number of the card you would like: "))
+                self.card2 = tempCards[cardOneNumber]
+                tempCards.pop(cardOneNumber, None)
+                # once player has selected card, return two remaining cards to the deck
+                keys = list(tempCards.keys())
+                for key in keys:
+                    self.returnCardToDeck(tempCards[key])
+                print("Card 1: " + self.card1.name)
+                print("Card 2: " + self.card2.name)
+
+            # CARD 2 IS FLIPPED
+            elif self.card2.name == "Flipped":
+                tempCards = {}
+                tempCards[1] = self.card1
+                tempCards[2] = deck.drawCardFromDeck()
+                tempCards[3] = deck.drawCardFromDeck()
+                showCards = input("Player " + str(self.playerNumber) + ", enter any key when ready to see cards: ")
+                keys = list(tempCards.keys())
+                print()
+                for key in keys:
+                    print("Card " + str(key) + ": " + str(tempCards[key].name))
+                print()
+                # after seeing all cards, let player select which two to keep
+                cardOneNumber = int(input("Player " + str(self.playerNumber) + ", enter the card number of the first card you would like: "))
+                self.card1 = tempCards[cardOneNumber]
+                tempCards.pop(cardOneNumber, None)
+                # once player has selected cards, return two remaining cards to the deck
+                keys = list(tempCards.keys())
+                for key in keys:
+                    self.returnCardToDeck(tempCards[key])
+
+                print("Card 1: " + self.card1.name)
+                print("Card 2: " + self.card2.name)
+
+            # NEITHER CARD IS FLIPPED
+            else:
+                tempCards = {}
+                tempCards[1] = self.card1
+                tempCards[2] = self.card2
+                tempCards[3] = deck.drawCardFromDeck()
+                tempCards[4] = deck.drawCardFromDeck()
+                showCards = input("Player " + str(self.playerNumber) + ", enter any key when ready to see cards: ")
+                keys = list(tempCards.keys())
+                print()
+                for key in keys:
+                    print("Card " + str(key) + ": " + str(tempCards[key].name))
+                print()
+                # after seeing all cards, let player select which two to keep
+                cardOneNumber = int(input("Player " + str(self.playerNumber) + ", enter the card number of the first card you would like: "))
+                self.card1 = tempCards[cardOneNumber]
+                tempCards.pop(cardOneNumber, None)
+                cardTwoNumber = int(input("Player " + str(self.playerNumber) + ", enter the card number of the second card you would like: "))
+                self.card2 = tempCards[cardTwoNumber]
+                tempCards.pop(cardTwoNumber, None)
+                # once player has selected cards, return two remaining cards to the deck
+                keys = list(tempCards.keys())
+                for key in keys:
+                    self.returnCardToDeck(tempCards[key])
+
+                print("Card 1: " + self.card1.name)
+                print("Card 2: " + self.card2.name)
+        print("Exchange successful")
+        print()
 
     def assassinate(self, victim):
-        print("assassinate")
+        self.numCoins -= 3
+        victimPlayer = getPlayerByNum(victim)
+        victimChoice = int(input("Player " + str(victim) + ", you are being assassinated by Player " + str(self.playerNumber) + "; enter '0' to accept assassination, enter '1' to challenge assassin, or enter '2' to claim contessa: "))
+        # victim accepts assassination
+        if victimChoice == 0:
+            victimPlayer.flipCard()
+        # victim challenges assassin
+        if victimChoice == 1:
+            if self.confirmCards(victim, "assassin") == False:
+                victimPlayer.flipCard()
+        if victimChoice == 2:
+            originalPlayerDecision = int(input("Player " + str(victim) + " is claiming to be a contessa, Player " + str(self.playerNumber) + ", enter '0' to accept this or '1' to challenge: "))
+            if originalPlayerDecision == 0:
+                return
+            else:
+                if victimPlayer.confirmCards(self.playerNumber, "contessa") == False:
+                    self.flipCard()
 
     def foreignAid(self):
-        print("foreignAid")
+        challenger = int(input("Player " + str(self.playerNumber) + " is attempting to take foreign aid; if you wish to claim duke enter your player number, else enter '0': "))
+        if challenger == 0:
+            self.numCoins += 2
+        else:
+            originalPlayerDecision = int(input("Player " + str(challenger) + " is claiming duke, enter '0' to accept or enter '1' to challenge: "))
+            if originalPlayerDecision == 0:
+                return
+            else:
+                challengerPlayer = getPlayerByNum(challenger)
+                if challengerPlayer.confirmCards(self.playerNumber, "duke") == True:
+                    self.numCoins += 2
+
+
 
     # response moves (blocking / challenging a previous players move)
-    def blockAssassin(self):
-        print("blockAssassin")
+    # def blockAssassin(self):
+    #     print("blockAssassin")
 
-    def blockTheft(self):
-        print("blockTheft")
+    # def blockTheft(self):
+    #     print("blockTheft")
 
-    def blockForeignAid(self):
-        print("blockForeignAid")
+    # def blockForeignAid(self):
+    #     print("blockForeignAid")
 
-    def challenge(self):
-        print("challenge")
+    # def challenge(self):
+    #     print("challenge")
 
     def flipCard(self):
         print()
@@ -140,6 +266,7 @@ class Player:
             flippedCards.append(self.card2)
             print("Player " + str(self.playerNumber) + " has flipped: " + str(self.card2.name))
             self.card2.name = "Flipped"
+            self.numCards -= 1
             print("Player " + str(victimNumber) + ", you have been eliminated")
             players.pop(victimNumber, None)
             print(list(players.keys()))
@@ -148,6 +275,7 @@ class Player:
             flippedCards.append(self.card1)
             print("Player " + str(self.playerNumber) + " has flipped: " + str(self.card1.name))
             self.card1.name = "Flipped"
+            self.numCards -= 1
             print("Player " + str(victimNumber) + ", you have been eliminated")
             players.pop(victimNumber, None)
             print(list(players.keys()))
@@ -159,10 +287,42 @@ class Player:
             print("Player " + str(self.playerNumber) + " has flipped: " + str(self.card1.name))
             flippedCards.append(self.card1)
             self.card1.name = "Flipped"
+            self.numCards -= 1
         else:
             print("Player " + str(self.playerNumber) + " has flipped: " + str(self.card2.name))
             flippedCards.append(self.card2)
             self.card2.name = "Flipped"
+            self.numCards -= 1
+
+
+    # returns True if challenger is correct, returns False if original player is correct
+    # if the original player is correct, the challenger flips a card and player 1 gets a new card
+    # otherwise, the original player flips a card
+    def confirmCards(self, challenger, card):
+        if card == self.card1.name:
+            print("Challenge unsuccessful, Player " + str(self.playerNumber) + " had a " + str(self.card1.name))
+            challengerPlayer = getPlayerByNum(challenger)
+            challengerPlayer.flipCard()
+            print("Card before: " + str(self.card1.name))
+            self.returnCardToDeck(self.card1)
+            self.card1 = deck.drawCardFromDeck()
+            print("Card after: " + str(self.card1.name))
+            print()
+            return False
+        elif card == self.card2.name:
+            print("Challenge unsuccessful, Player " + str(self.playerNumber) + " had a " + str(self.card2.name))
+            challengerPlayer = getPlayerByNum(challenger)
+            challengerPlayer.flipCard()
+            print("Card before: " + str(self.card2.name))
+            self.returnCardToDeck(self.card2)
+            self.card2 = deck.drawCardFromDeck()
+            print("Card after: " + str(self.card2.name))
+            print()
+            return False
+        else:
+            print("Challenge successful, Player " + str(self.playerNumber) + " did not have a " + str(card))
+            self.flipCard()
+            return True
 
         
        
@@ -186,33 +346,6 @@ class Player:
         deck.cards.append(card)
         deck.shuffle()
 
-
-    # returns True if challenger is correct, returns False if original player is correct
-    # if the original player is correct, the challenger flips a card and player 1 gets a new card
-    # otherwise, the original player flips a card
-    def confirmCards(self, challenger, card):
-        if card == self.card1.name:
-            print("Challenge unsuccessful, Player " + str(self.playerNumber) + " had a " + str(self.card1.name))
-            challengerPlayer = getPlayerByNum(challenger)
-            challengerPlayer.flipCard()
-            print("Card before: " + str(self.card1.name))
-            self.returnCardToDeck(self.card1)
-            self.card1 = deck.drawCardFromDeck()
-            print("Card after: " + str(self.card1.name))
-            return False
-        elif card == self.card2.name:
-            print("Challenge unsuccessful, Player " + str(self.playerNumber) + " had a " + str(self.card2.name))
-            challengerPlayer = getPlayerByNum(challenger)
-            challengerPlayer.flipCard()
-            print("Card before: " + str(self.card2.name))
-            self.returnCardToDeck(self.card2)
-            self.card2 = deck.drawCardFromDeck()
-            print("Card after: " + str(self.card2.name))
-            return False
-        else:
-            print("Challenge successful, Player " + str(self.playerNumber) + " did not have a " + str(card))
-            self.flipCard()
-            return True
 
 # initialize the deck
 deck = Deck()
@@ -261,10 +394,14 @@ def playGame():
 
         # final step (needed to advance to next player)
         prevPlayer = currentPlayer
+    lastPlayerStanding = list(players.keys())
+    print("Winner is: " + str(players[lastPlayerStanding[0]].playerNumber))
 
 def makeMove(player):
-    print("Enter 0 for move list, or enter 1-7 for your move")
+    print("Enter 0 for move list, or enter 1-7 for your move, enter 9 for game update")
+    print("Player " + str(player.playerNumber) + " coins: " + str(player.numCoins))
     move = int(input("Player " + str(player.playerNumber) + ", your move: "))
+    # PRINT MOVE LIST
     if (move == 0):
         printMoveList()
         return False
@@ -290,12 +427,12 @@ def makeMove(player):
     elif (move == 3):
         print("~TAX~")
         player.tax()
-        challenger = int(input("If you wish to challenge, enter your player number. Else enter '0': "))
+        challenger = int(input("Player " + str(player.playerNumber) + " is claiming duke; if you wish to challenge enter your player number, else enter '0': "))
         if challenger in players:
             if player.confirmCards(challenger, "duke") == True:
                 player.numCoins -= 3
 
-        print("Player " + str(player.playerNumber) + "coins: " + str(player.getNumCoins()))
+        print("Player " + str(player.playerNumber) + " coins: " + str(player.getNumCoins()))
         print()
 
     # STEAL
@@ -304,18 +441,39 @@ def makeMove(player):
         victimNumber = int(input("Enter the player you wish to steal from: "))
         player.steal(victimNumber)
         victim = getPlayerByNum(victimNumber)
-        # print("Player " + str(player.playerNumber) + " coins: " + str(player.numCoins))
-        # print("Player " + str(victim.playerNumber) + " coins: " + str(victim.numCoins))
+        print("Player " + str(player.playerNumber) + " coins: " + str(player.numCoins))
+        print("Player " + str(victim.playerNumber) + " coins: " + str(victim.numCoins))
+        print()
 
     # EXCHANGE
     elif(move == 5):
-        player.foreignAid()
+        print("~EXCHANGE~")
+        player.exchange()
     # ASSASSINATE
     elif(move == 6):
-        player.foreignAid()
+        if player.numCoins < 3:
+            print("Not enough coins to assassinate")
+            return False
+        print("~ASSASSINATE~")
+        victim = int(input("Player " + str(player.playerNumber) + ", select the person you want to assassinate: "))
+        player.assassinate(victim)
     # FOREIGN AID
     elif(move == 7):
+        print("~FOREIGN AID~")
         player.foreignAid()
+    # GAME UPDATE
+    elif(move == 9):
+        # print flipped cards, players left, num cards and coins
+        print()
+        print("Flipped cards: ")
+        for card in flippedCards:
+            print(card.name)
+        print()
+        keys = list(players.keys())
+        for key in keys:
+            print("Player " + str(players[key].playerNumber) + ": coins:" + str(players[key].numCoins) + " cards: " + str(str(players[key].numCards)))
+        print()
+        return False
     else:
         print("Please enter valid move (number between 1 - 7)")
         return False
