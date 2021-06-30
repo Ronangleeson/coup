@@ -1,0 +1,38 @@
+Coup Rules:
+https://www.ultraboardgames.com/coup/game-rules.php
+
+
+Coup is a turn-based bluffing game. Each player is dealt two face-down cards and given two coins at the start of the game.
+Coins are used to eliminate the card of another player. Cards give a player special powers and keep them in the game. 
+Once a player is out of cards, they are eliminated. The goal of coup is to be the last player left standing.
+
+Initial Actions (can be done by any player at the start of the turn):
+    Unblockable:
+        Income: Use turn to take 1 coin from treasury
+        Coup: Use turn and 7 coins to eliminate an opponent's card (must also be done if player has 10 or more coins)
+    Blockable:
+        Tax (Duke): Take 3 coins from treasury
+        Steal (Captain): Take 2 coins from opponent
+        Exchange (Ambassador): Draw 2 cards from deck & choose any combination of cards with hand, then return 2 cards to deck
+        Assassinate (Assassin): Eliminate an opponent's card with 3 coins
+        Foreign Aid (No specific card required): Take 2 coins from treasury
+
+Response Actions:
+    Block Assassination (Contessa): Stop opponent from assassinating 1 of your cards
+    Block Theft (Captain or Ambassador): Stop opponent from stealing 2 of your coins
+    Block Foreign Aid (Duke): Stop opponent from taking 2 coins from treasury
+    Challenge (No specific card required): Challenge an opponent claiming to be a specific card: 
+                                           if correct, opponent loses a card;
+                                           if incorrect, player loses a card and opponent gets a new random card
+    
+
+Gameplay:
+At the start of one's turn, a player can propose any initial action. If the action is unblockable, it is completed immediately. 
+If it is a blockable action, opponents can either claim a power to block it or challenge the player's assertion that they have
+a specific card. If the challenge is successful, the player's action is not completed and they lose a card. If the challenge is 
+unsuccessful, the player's action is completed, the challenger loses a card, and the player gets a new random card from the deck
+to replace the card that was revealed during the challenge.
+
+Play cotinues in a clockwise circle until only one player is left.
+
+
